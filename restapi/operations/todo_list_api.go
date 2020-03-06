@@ -46,6 +46,15 @@ func NewTodoListAPI(spec *loads.Document) *TodoListAPI {
 		TodosGetHandler: todos.GetHandlerFunc(func(params todos.GetParams) middleware.Responder {
 			return middleware.NotImplemented("operation todos.Get has not yet been implemented")
 		}),
+		TodosAddOneHandler: todos.AddOneHandlerFunc(func(params todos.AddOneParams) middleware.Responder {
+			return middleware.NotImplemented("operation todos.AddOne has not yet been implemented")
+		}),
+		TodosDestroyOneHandler: todos.DestroyOneHandlerFunc(func(params todos.DestroyOneParams) middleware.Responder {
+			return middleware.NotImplemented("operation todos.DestroyOne has not yet been implemented")
+		}),
+		TodosUpdateOneHandler: todos.UpdateOneHandlerFunc(func(params todos.UpdateOneParams) middleware.Responder {
+			return middleware.NotImplemented("operation todos.UpdateOne has not yet been implemented")
+		}),
 	}
 }
 
@@ -81,6 +90,12 @@ type TodoListAPI struct {
 
 	// TodosGetHandler sets the operation handler for the get operation
 	TodosGetHandler todos.GetHandler
+	// TodosAddOneHandler sets the operation handler for the add one operation
+	TodosAddOneHandler todos.AddOneHandler
+	// TodosDestroyOneHandler sets the operation handler for the destroy one operation
+	TodosDestroyOneHandler todos.DestroyOneHandler
+	// TodosUpdateOneHandler sets the operation handler for the update one operation
+	TodosUpdateOneHandler todos.UpdateOneHandler
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
@@ -149,6 +164,15 @@ func (o *TodoListAPI) Validate() error {
 
 	if o.TodosGetHandler == nil {
 		unregistered = append(unregistered, "todos.GetHandler")
+	}
+	if o.TodosAddOneHandler == nil {
+		unregistered = append(unregistered, "todos.AddOneHandler")
+	}
+	if o.TodosDestroyOneHandler == nil {
+		unregistered = append(unregistered, "todos.DestroyOneHandler")
+	}
+	if o.TodosUpdateOneHandler == nil {
+		unregistered = append(unregistered, "todos.UpdateOneHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -242,6 +266,18 @@ func (o *TodoListAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"][""] = todos.NewGet(o.context, o.TodosGetHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"][""] = todos.NewAddOne(o.context, o.TodosAddOneHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/{id}"] = todos.NewDestroyOne(o.context, o.TodosDestroyOneHandler)
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/{id}"] = todos.NewUpdateOne(o.context, o.TodosUpdateOneHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP
